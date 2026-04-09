@@ -26,4 +26,10 @@ class SongRepositoryMock implements SongRepository {
   Future<void> likeSong(Song song) async {
     throw new Exception();
   }
+  
+  @override
+  Future<List<Song>> cacheFetchSongs({bool forceFetch = false}) {
+    // TODO: implement cacheFetchSongs
+    throw UnimplementedError();
+  }
 }

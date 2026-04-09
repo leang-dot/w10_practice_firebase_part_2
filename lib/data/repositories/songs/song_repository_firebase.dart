@@ -11,7 +11,7 @@ class SongRepositoryFirebase extends SongRepository {
     'w-10-93bd2-default-rtdb.firebaseio.com',
     '/songs.json',
   );
-
+  List<Song>? _cachedSongs;
   @override
   Future<List<Song>> fetchSongs() async {
     final http.Response response = await http.get(songsUri);
@@ -54,4 +54,29 @@ class SongRepositoryFirebase extends SongRepository {
 
   @override
   Future<Song?> fetchSongById(String id) async {}
+  
+  @override
+  Future<List<Song>> cacheFetchSongs({bool forceFetch = false}) async {
+     if (!forceFetch && _cachedSongs != null) {
+      return _cachedSongs!;
+    }
+
+    final http.Response response = await http.get(songsUri);
+
+    if (response.statusCode == 200) {
+      // 1 - Send the retrieved list of songs
+      Map<String, dynamic> songJson = json.decode(response.body);
+
+      List<Song> result = [];
+      for (final entry in songJson.entries) {
+        result.add(SongDto.fromJson(entry.key, entry.value));
+      }
+
+      _cachedSongs = result;
+      return result;
+    } else {
+      // 2- Throw expcetion if any issue
+      throw Exception('Failed to load posts');
+    }
+  }
 }
